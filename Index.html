@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boltverse Sprint</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    body { background: #0a0a1f; padding-bottom: 85px; }
+    .bolt-card { background: #1e2937; border: 2px solid #334155; }
+    .cosmic-bg {
+      background: 
+        radial-gradient(circle at 15% 25%, rgba(103, 232, 249, 0.13) 0%, transparent 55%),
+        radial-gradient(circle at 85% 75%, rgba(192, 132, 252, 0.12) 0%, transparent 55%),
+        #0a0a1f;
+    }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #1e2937; border-top: 2px solid #334155; z-index: 99999; }
+    
+    .resource-bar { height: 10px; background: #1e2937; border-radius: 9999px; overflow: hidden; border: 1px solid #334155; }
+    .resource-fill { height: 100%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .resonance-fill { background: linear-gradient(to right, #a855f7, #ec4899); }
+    .echo-fill { background: linear-gradient(to right, #22d3ee, #3b82f6); }
+
+    .game-btn { transition: transform 0.1s ease, box-shadow 0.1s ease; }
+    .game-btn:active { transform: scale(0.92); }
+
+    .launch-btn { transition: all 0.2s ease; box-shadow: 0 0 30px rgba(251, 191, 36, 0.5); }
+    .launch-btn:active { transform: scale(0.95); }
+
+    .slot-card { background: #1e2937; border: 1px solid #475569; }
+    .buff-card { background: #1e2937; border: 1px solid #475569; }
+    .active-buff { background: #1e2937; border: 1px solid #475569; }
+
+    #three-container {
+      width: 100%;
+      height: 420px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #1e2937;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="bg-black text-white">
+
+  <!-- ==================== CITADEL HUB ==================== -->
+  <div id="citadel-hub" class="max-w-md mx-auto px-3 pt-3 cosmic-bg" style="max-height:100dvh; overflow-y:auto;">
+
+    <div class="text-center mb-6 pt-4">
+      <div class="text-4xl font-black tracking-wider">THUNDERWOLF CITADEL</div>
+      <div class="text-emerald-400 text-sm -mt-1">Heart of the Boltverse</div>
+    </div>
+
+    <!-- Detailed Bolt SVG -->
+    <div class="flex justify-center mb-6">
+      <svg id="bolt-svg" width="130" height="130" viewBox="0 0 250 235" xmlns="http://www.w3.org/2000/svg"
+           class="drop-shadow-[0_0_25px_rgba(96,165,250,0.5)]">
+
+        <defs>
+          <filter id="aura-glow" x="-250%" y="-250%" width="600%" height="600%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur1"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur2"/>
+            <feMerge>
+              <feMergeNode in="blur2"/>
+              <feMergeNode in="blur1"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <linearGradient id="heroFur" x1="0%" y1="10%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#f8fafc"/>
+            <stop offset="100%" stop-color="#c7d2fe"/>
+          </linearGradient>
+        </defs>
+
+        <ellipse cx="125" cy="125" rx="95" ry="72" fill="#3b82f6" opacity="0.18" filter="url(#aura-glow)"/>
+        <ellipse id="body" cx="125" cy="128" rx="72" ry="38" fill="url(#heroFur)" stroke="#475569" stroke-width="5"/>
+
+        <g opacity="0.32" stroke="#475569" stroke-width="1.1">
+          <path d="M62 105 Q80 100 100 108"/>
+          <path d="M70 115 Q90 110 110 118"/>
+          <path d="M78 125 Q100 120 120 128"/>
+          <path d="M85 135 Q108 130 128 138"/>
+          <path d="M135 105 Q158 100 175 108"/>
+          <path d="M142 115 Q165 110 182 118"/>
+          <path d="M150 125 Q173 120 190 128"/>
+          <path d="M158 135 Q180 130 195 138"/>
+        </g>
+
+        <ellipse cx="95" cy="70" rx="42" ry="38" fill="url(#heroFur)" stroke="#475569" stroke-width="5"/>
+        <ellipse cx="70" cy="80" rx="22" ry="16" fill="#e0e7ff" stroke="#475569" stroke-width="3.5"/>
+        <ellipse cx="60" cy="78" rx="7.5" ry="7" fill="#1e2937"/>
+        <path d="M52 88 Q68 95 85 87" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="76" cy="60" rx="9" ry="8.5" fill="#0f172a"/>
+        <ellipse cx="78.5" cy="59" rx="4.2" ry="3.8" fill="#64748b"/>
+        <ellipse cx="80" cy="57.5" rx="1.6" ry="1.3" fill="#bae6fd"/>
+        <ellipse cx="108" cy="60" rx="9" ry="8.5" fill="#0f172a"/>
+        <ellipse cx="110.5" cy="59" rx="4.2" ry="3.8" fill="#64748b"/>
+        <ellipse cx="112" cy="57.5" rx="1.6" ry="1.3" fill="#bae6fd"/>
+        <path d="M66 49 Q80 46 92 52" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+        <path d="M100 49 Q114 46 126 52" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+        <path d="M52 35 L66 12 L88 44 Z" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+        <path d="M102 35 L116 12 L138 44 Z" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+        <rect x="72" y="152" width="15" height="44" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+        <rect x="95" y="152" width="15" height="44" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+        <rect x="155" y="150" width="14" height="46" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+        <rect x="175" y="150" width="14" height="46" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+        
+        <g id="tail-group">
+          <path id="tail" d="M195 112 Q235 82 222 38" fill="none" stroke="#e0e7ff" stroke-width="24" stroke-linecap="round"/>
+          <path id="tail-outline" d="M195 112 Q235 82 222 38" fill="none" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+        </g>
+
+        <path class="lightning lightning-main" d="M68 108 L88 100 L82 125 L105 115 L95 145" fill="none" stroke="#3b82f6" stroke-width="5" stroke-linecap="round" filter="url(#lightning-glow)"/>
+      </svg>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="bolt-card rounded-2xl p-4 mb-6">
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div>
+          <div class="text-xs text-purple-400">RESONANCE</div>
+          <div id="hub-resonance" class="font-black text-2xl text-purple-400">0</div>
+        </div>
+        <div>
+          <div class="text-xs text-cyan-400">ECHO</div>
+          <div id="hub-echo" class="font-black text-2xl text-cyan-400">0</div>
+        </div>
+        <div>
+          <div class="text-xs text-amber-400">PRESTIGE</div>
+          <div id="hub-prestige" class="font-black text-2xl text-amber-400">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Launch Sprint -->
+    <div class="px-4 mb-8">
+      <button onclick="launchSprint()" class="launch-btn w-full py-6 bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-black text-2xl rounded-3xl">
+        LAUNCH SPRINT
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ==================== BOLTFORGE SCREEN ==================== -->
+  <div id="boltforge-screen" class="hidden max-w-md mx-auto px-5 pt-6 pb-20">
+
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <div class="text-4xl font-black text-orange-400">BOLT FORGE</div>
+        <div class="text-orange-300 text-lg -mt-1">The Cosmic Anvil</div>
+      </div>
+      <button onclick="returnToCitadel()" class="px-6 py-2 bg-orange-600 rounded-2xl text-sm font-bold">BACK</button>
+    </div>
+
+    <div class="text-center mb-8">
+      <div class="text-sm text-slate-400">Your Resonance</div>
+      <div id="forge-resonance" class="text-6xl font-black text-orange-400">0</div>
+    </div>
+
+    <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 mb-5">
+      <div class="text-2xl font-bold text-orange-400 mb-2">Forge Cosmic Artifact</div>
+      <p class="text-slate-300 text-sm mb-5">Create trails, effects, and morph patterns</p>
+      <button onclick="forgeArtifact()" class="w-full py-4 bg-orange-500 text-white font-black text-lg rounded-2xl">
+        FORGE ARTIFACT (25 Resonance)
+      </button>
+    </div>
+
+    <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6">
+      <div class="text-2xl font-bold text-emerald-400 mb-2">Forge Procedural Companion</div>
+      <p class="text-slate-300 text-sm mb-5">Create a new loyal companion</p>
+      <button onclick="forgeCompanion()" class="w-full py-4 bg-emerald-500 text-white font-black text-lg rounded-2xl">
+        FORGE COMPANION (40 Resonance)
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== SPRINT SCREEN ==================== -->
+  <div id="sprint-screen" class="hidden max-w-md mx-auto px-3 pt-3 cosmic-bg" style="max-height:100dvh; overflow-y:auto;">
+
+    <div class="flex justify-end mb-2">
+      <button onclick="returnToCitadel()" class="px-4 py-1.5 bg-slate-800 rounded-2xl text-sm font-bold">← Return to Citadel</button>
+    </div>
+
+    <div class="flex justify-between items-center mb-2">
+      <div>
+        <h1 class="text-2xl font-black">BOLTVERSE</h1>
+        <p class="text-[#00f0ff] text-xs -mt-1">COSMIC SPRINTS</p>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-slate-400">HIGH SCORE</div>
+        <div id="high-score" class="text-xl font-black text-amber-400">0</div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-3 px-1">
+      <div id="biome-indicator" class="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-slate-800 border border-slate-600 text-sm font-bold"></div>
+      <div class="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-purple-900/30 border border-purple-700">
+        <span class="text-xs text-purple-400">PRESTIGE</span>
+        <span id="prestige-level" class="font-black text-lg text-purple-300">0</span>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-1 px-1">
+      <div>
+        <span class="text-xs text-orange-400">SPRINT TYPE</span>
+        <span id="sprint-type-label" class="font-black text-lg ml-1">Burst</span>
+      </div>
+      <div class="text-right">
+        <span class="text-xs text-purple-400">RESONANCE</span>
+        <span id="resonance-text" class="font-mono text-purple-400">0</span>
+      </div>
+    </div>
+
+    <div class="resource-bar mb-3">
+      <div id="resonance-bar" class="resource-fill resonance-fill" style="width:0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-1 px-1">
+      <span class="text-xs text-cyan-400 font-bold">ECHO</span>
+      <span id="echo-text" class="font-mono text-cyan-400">0</span>
+    </div>
+
+    <div class="resource-bar mb-4">
+      <div id="echo-bar" class="resource-fill echo-fill" style="width:0%"></div>
+    </div>
+
+    <div class="bolt-card rounded-2xl p-4 mb-4">
+      <div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-600">
+        <div class="w-14 h-14 flex-shrink-0">
+          <svg viewBox="0 0 250 235" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="125" cy="128" rx="72" ry="38" fill="#f8fafc" stroke="#475569" stroke-width="5"/>
+            <ellipse cx="95" cy="70" rx="42" ry="38" fill="#f8fafc" stroke="#475569" stroke-width="5"/>
+            <ellipse cx="70" cy="80" rx="22" ry="16" fill="#e0e7ff" stroke="#475569" stroke-width="3.5"/>
+            <ellipse cx="60" cy="78" rx="7.5" ry="7" fill="#1e2937"/>
+            <ellipse cx="76" cy="60" rx="9" ry="8.5" fill="#0f172a"/>
+            <ellipse cx="108" cy="60" rx="9" ry="8.5" fill="#0f172a"/>
+            <rect x="72" y="152" width="15" height="44" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+            <rect x="95" y="152" width="15" height="44" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+            <rect x="155" y="150" width="14" height="46" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+            <rect x="175" y="150" width="14" height="46" rx="5" fill="#e0e7ff" stroke="#475569" stroke-width="4"/>
+            <path d="M195 112 Q235 82 222 38" fill="none" stroke="#e0e7ff" stroke-width="20" stroke-linecap="round"/>
+            <path class="lightning lightning-main" d="M68 108 L88 100 L82 125 L105 115 L95 145" fill="none" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="font-black text-xl tracking-tight">BOLT</div>
+          <div class="text-emerald-400 text-xs -mt-0.5 font-medium">LIGHTNING SPRINTER</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div class="flex justify-between"><span class="text-slate-400">SPEED</span><span id="speed" class="font-black">5</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">HOWL</span><span id="howl" class="font-black">3</span></div>
+        
+        <div class="flex justify-between items-center col-span-2 pt-1 border-t border-slate-600">
+          <span class="text-slate-400 text-base">SCORE</span>
+          <span id="score" class="font-black text-3xl text-amber-400">0</span>
+        </div>
+
+        <div class="flex justify-between items-center col-span-2">
+          <span class="text-slate-400">ENERGY</span>
+          <div class="flex items-center gap-2 flex-1 ml-3">
+            <div class="flex-1 h-2 bg-slate-700 rounded">
+              <div id="energy-bar" class="h-2 bg-emerald-400 rounded transition-all" style="width:100%"></div>
+            </div>
+            <span id="energy" class="font-mono text-sm w-8 text-right">100</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-4 pt-3 border-t border-slate-600">
+        <div id="combo-container" class="px-5 py-1.5 bg-orange-900/40 border border-orange-600 rounded-2xl flex items-center gap-3">
+          <div>
+            <span class="text-xs text-orange-400">COMBO</span>
+            <span id="combo" class="font-black text-xl text-orange-400 ml-1">0</span>
+          </div>
+          <div class="px-3 py-0.5 bg-orange-600 rounded-xl">
+            <span id="combo-multiplier" class="font-black text-sm text-white">x1.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 mb-2">
+      <button onclick="howl()" class="game-btn bg-purple-600 font-black py-5 rounded-2xl text-xl">HOWL</button>
+      <button id="sprint-btn" onclick="sprint()" class="game-btn bg-emerald-500 text-black font-black py-5 rounded-2xl text-xl">SPRINT</button>
+    </div>
+
+    <button onclick="catchComet()" class="game-btn w-full mb-8 bg-orange-500 font-black py-3 rounded-2xl">CATCH COMET</button>
+  </div>
+
+  <!-- ==================== INVENTORY SCREEN ==================== -->
+  <div id="inventory-screen" class="hidden max-w-md mx-auto px-5 pt-6 pb-24">
+
+    <div class="flex justify-between items-center mb-6">
+      <div class="text-4xl font-black text-purple-400">INVENTORY</div>
+      <button onclick="returnToCitadel()" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-2xl text-sm font-bold">BACK</button>
+    </div>
+
+    <div class="flex items-center gap-4 mb-8">
+      <div class="w-16 h-16 bg-orange-400 rounded-2xl flex items-center justify-center overflow-hidden">
+        <svg width="52" height="52" viewBox="0 0 120 90" fill="none">
+          <rect x="25" y="45" width="70" height="30" rx="15" fill="#e0e7ff"/>
+          <circle cx="40" cy="35" r="18" fill="#e0e7ff"/>
+          <rect x="30" y="65" width="12" height="22" rx="4" fill="#64748b"/>
+          <rect x="78" y="65" width="12" height="22" rx="4" fill="#64748b"/>
+          <path d="M95 50 Q110 35 105 25" stroke="#e0e7ff" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-3xl font-black">BOLT</div>
+        <div class="text-emerald-400 text-sm -mt-1">Lightning Sprinter</div>
+      </div>
+    </div>
+
+    <div class="mb-8">
+      <div class="text-xl font-bold mb-4 text-purple-300">Equipment Slots</div>
+
+      <div class="slot-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">1. Sprint Trail</div>
+          <div id="slot-1-text" class="text-sm text-slate-400">Empty</div>
+        </div>
+        <button id="slot-1-btn" onclick="equipSlot(1)" class="px-4 py-1 bg-purple-600 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl text-sm font-bold shadow-md">Equip</button>
+      </div>
+
+      <div class="slot-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">2. Aura / Morph Effect</div>
+          <div id="slot-2-text" class="text-sm text-slate-400">Empty</div>
+        </div>
+        <button id="slot-2-btn" onclick="equipSlot(2)" class="px-4 py-1 bg-purple-600 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl text-sm font-bold shadow-md">Equip</button>
+      </div>
+
+      <div class="slot-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">3. Sigil / Accessory</div>
+          <div id="slot-3-text" class="text-sm text-slate-400">Empty</div>
+        </div>
+        <button id="slot-3-btn" onclick="equipSlot(3)" class="px-4 py-1 bg-purple-600 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl text-sm font-bold shadow-md">Equip</button>
+      </div>
+
+      <div class="slot-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">4. Echo Amplifier</div>
+          <div id="slot-4-text" class="text-sm text-slate-400">Empty</div>
+        </div>
+        <button id="slot-4-btn" onclick="equipSlot(4)" class="px-4 py-1 bg-purple-600 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all duration-200 rounded-xl text-sm font-bold shadow-md">Equip</button>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <div class="text-xl font-bold text-emerald-400 mb-2">Procedural Companions</div>
+      <div class="text-slate-400">No companions yet.</div>
+    </div>
+
+    <div>
+      <div class="text-xl font-bold text-orange-400 mb-2">Cosmic Artifacts</div>
+      <div class="text-slate-400">No artifacts yet.</div>
+    </div>
+  </div>
+
+  <!-- ==================== MARKETPLACE SCREEN ==================== -->
+  <div id="marketplace-screen" class="hidden max-w-md mx-auto px-5 pt-6 pb-24">
+
+    <div class="flex justify-between items-center mb-6">
+      <div class="text-4xl font-black text-yellow-400">MARKETPLACE</div>
+      <button onclick="returnToCitadel()" class="px-6 py-2 bg-orange-600 hover:bg-orange-700 rounded-2xl text-sm font-bold">BACK</button>
+    </div>
+
+    <div class="text-center mb-8">
+      <div class="text-sm text-slate-400">Resonance</div>
+      <div id="marketplace-resonance" class="text-4xl font-black text-yellow-400">0</div>
+    </div>
+
+    <div class="mb-8">
+      <div class="text-2xl font-bold text-yellow-300 mb-4">Buy Buffs</div>
+
+      <div class="buff-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">Resonance Surge</div>
+          <div class="text-sm text-slate-400">+50% Resonance ×10 sprints</div>
+        </div>
+        <button onclick="buyBuff('resonanceSurge', 40, 10)" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 rounded-2xl text-sm font-bold">40</button>
+      </div>
+
+      <div class="buff-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">Echo Boost</div>
+          <div class="text-sm text-slate-400">2× Echo ×5 sprints</div>
+        </div>
+        <button onclick="buyBuff('echoBoost', 35, 5)" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 rounded-2xl text-sm font-bold">35</button>
+      </div>
+
+      <div class="buff-card rounded-2xl p-4 mb-3 flex justify-between items-center">
+        <div>
+          <div class="font-bold">Energy Refill</div>
+          <div class="text-sm text-slate-400">Instant full energy</div>
+        </div>
+        <button onclick="buyEnergyRefill()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 rounded-2xl text-sm font-bold">25</button>
+      </div>
+    </div>
+
+    <div id="active-buffs-section" class="mb-8 hidden">
+      <div class="text-xl font-bold text-yellow-300 mb-3">Active Buffs</div>
+      
+      <div id="resonance-surge-timer" class="active-buff rounded-2xl p-4 mb-2 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-bold text-purple-300">Resonance Surge</div>
+            <div class="text-sm text-slate-400">+50% Resonance</div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-black text-purple-400" id="resonance-surge-count">10</div>
+            <div class="text-xs text-slate-400">sprints left</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="echo-boost-timer" class="active-buff rounded-2xl p-4 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-bold text-cyan-300">Echo Boost</div>
+            <div class="text-sm text-slate-400">2× Echo</div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-black text-cyan-400" id="echo-boost-count">5</div>
+            <div class="text-xs text-slate-400">sprints left</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <div class="text-2xl font-bold text-yellow-300 mb-4">Sell Artifact</div>
+      <button onclick="sellRandomArtifact()" class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-black text-lg rounded-2xl">
+        SELL RANDOM ARTIFACT
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ==================== AR PORTAL SCREEN ==================== -->
+  <div id="ar-portal-screen" class="hidden max-w-md mx-auto px-5 pt-6 pb-24">
+
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <div class="text-3xl font-black text-purple-400">AR PORTAL</div>
+        <div class="text-purple-300 text-sm">Detailed 3D Bolt</div>
+      </div>
+      <button onclick="returnToCitadel()" class="px-5 py-2 bg-purple-600 rounded-2xl text-sm font-bold">BACK</button>
+    </div>
+
+    <div id="three-container" class="mb-4 rounded-2xl"></div>
+
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <button onclick="startRealAR()" class="py-3 bg-purple-600 hover:bg-purple-700 rounded-2xl font-bold text-sm">
+        Start Real AR
+      </button>
+      <button onclick="exitAR()" class="py-3 bg-slate-700 hover:bg-slate-600 rounded-2xl font-bold text-sm">
+        Exit AR
+      </button>
+    </div>
+
+    <div class="flex gap-3 mb-6">
+      <button onclick="toggleTailWag()" class="flex-1 py-2 bg-slate-700 hover:bg-slate-600 rounded-2xl text-sm font-medium">Toggle Tail</button>
+      <button onclick="addLightning()" class="flex-1 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-2xl text-sm font-medium">Lightning</button>
+    </div>
+
+    <div class="text-center text-xs text-slate-400">
+      Drag to rotate • Pinch or scroll to zoom
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav max-w-md mx-auto px-1 py-2 flex justify-around items-center bg-[#1e2937] border-t border-[#334155]">
+    <button onclick="openBoltForge()" class="flex flex-col items-center justify-center w-1/4 py-1 text-sm active:opacity-80">
+      <span class="text-2xl mb-0.5">🔥</span>
+      <span class="font-bold text-[10px]">Boltforge</span>
+    </button>
+    <button onclick="openMarketplace()" class="flex flex-col items-center justify-center w-1/4 py-1 text-sm active:opacity-80">
+      <span class="text-2xl mb-0.5">🛒</span>
+      <span class="font-bold text-[10px]">Marketplace</span>
+    </button>
+    <button onclick="openInventory()" class="flex flex-col items-center justify-center w-1/4 py-1 text-sm active:opacity-80">
+      <span class="text-2xl mb-0.5">🎒</span>
+      <span class="font-bold text-[10px]">Inventory</span>
+    </button>
+    <button onclick="openARPortal()" class="flex flex-col items-center justify-center w-1/4 py-1 text-sm active:opacity-80">
+      <span class="text-2xl mb-0.5">🌌</span>
+      <span class="font-bold text-[10px]">AR Portal</span>
+    </button>
+  </div>
+
+  <script>
+    // ==================== GAME STATE ====================
+    let bolt = { speed: 5, howl: 3, score: 0, energy: 100 };
+    let highScore = 0;
+    let combo = 0;
+    let prestigeLevel = 0;
+    let resonance = 0;
+    let echo = 0;
+    let currentBiome = "Crystal Nebula";
+
+    const BIOMES = {
+      "Crystal Nebula": { name: "Crystal Nebula", icon: "❄️", color: "#67e8f9", energyCostMult: 0.85, resonanceMult: 1.2 },
+      "Ember Void": { name: "Ember Void", icon: "🔥", color: "#f87171", energyCostMult: 1.25, resonanceMult: 0.9 },
+      "Whispering Starfields": { name: "Whispering Starfields", icon: "✨", color: "#c084fc", energyCostMult: 1.0, resonanceMult: 1.0 }
+    };
+
+    let equippedItems = { 1: null, 2: null, 3: null, 4: null };
+    let activeBuffs = { resonanceSurge: 0, echoBoost: 0 };
+
+    // Three.js variables
+    let threeScene, threeCamera, threeRenderer;
+    let threeBoltGroup, threeTail, threeBody;
+    let isWagging = true;
+    let lightningBolts = [];
+    let breathTime = 0;
+    let isDragging = false;
+    let previousX = 0;
+    let previousY = 0;
+    let previousDistance = 0;
+
+    let xrSession = null;
+
+    // ==================== ORIGINAL TAIL ANIMATION ====================
+    const tail = document.getElementById('tail');
+    const tailOutline = document.getElementById('tail-outline');
+    const body = document.getElementById('body');
+
+    const tailPositions = [
+      "M195 112 Q235 82 222 38",
+      "M195 112 Q215 70 200 32",
+      "M195 112 Q245 85 235 45"
+    ];
+
+    let currentIndex = 0;
+    let progress = 0;
+
+    function easeInOutSine(t) {
+      return -(Math.cos(Math.PI * t) - 1) / 2;
+    }
+
+    function interpolatePaths(pathA, pathB, t) {
+      const numsA = pathA.match(/-?\d+\.?\d*/g).map(Number);
+      const numsB = pathB.match(/-?\d+\.?\d*/g).map(Number);
+      let result = '';
+      let numIndex = 0;
+      const tokens = pathA.match(/[A-Za-z]|-?\d+\.?\d*/g);
+      for (let token of tokens) {
+        if (/[A-Za-z]/.test(token)) {
+          result += token + ' ';
+        } else {
+          const valA = numsA[numIndex];
+          const valB = numsB[numIndex];
+          const interpolated = valA + (valB - valA) * easeInOutSine(t);
+          result += interpolated.toFixed(1) + ' ';
+          numIndex++;
+        }
+      }
+      return result.trim();
+    }
+
+    function animateTail() {
+      if (!tail || !tailOutline || !body) return;
+      progress += 0.018;
+      if (progress >= 1) {
+        progress = 0;
+        currentIndex = (currentIndex + 1) % tailPositions.length;
+      }
+      const nextIndex = (currentIndex + 1) % tailPositions.length;
+      const newD = interpolatePaths(tailPositions[currentIndex], tailPositions[nextIndex], progress);
+      tail.setAttribute('d', newD);
+      tailOutline.setAttribute('d', newD);
+      const shift = Math.sin(progress * Math.PI * 2) * 1.8;
+      body.setAttribute('transform', `translate(${shift}, 0)`);
+      requestAnimationFrame(animateTail);
+    }
+
+    setTimeout(() => { animateTail(); }, 1000);
+
+    // ==================== SCREEN MANAGEMENT ====================
+    function hideAllScreens() {
+      document.getElementById('citadel-hub').classList.add('hidden');
+      document.getElementById('sprint-screen').classList.add('hidden');
+      document.getElementById('boltforge-screen').classList.add('hidden');
+      document.getElementById('inventory-screen').classList.add('hidden');
+      document.getElementById('marketplace-screen').classList.add('hidden');
+      document.getElementById('ar-portal-screen').classList.add('hidden');
+    }
+
+    function launchSprint() {
+      hideAllScreens();
+      document.getElementById('sprint-screen').classList.remove('hidden');
+      pickRandomBiome();
+      updateSprintTypeUI();
+      updateUI();
+    }
+
+    function openBoltForge() {
+      hideAllScreens();
+      document.getElementById('boltforge-screen').classList.remove('hidden');
+      document.getElementById('forge-resonance').textContent = resonance;
+    }
+
+    function openInventory() {
+      hideAllScreens();
+      document.getElementById('inventory-screen').classList.remove('hidden');
+    }
+
+    function openMarketplace() {
+      hideAllScreens();
+      document.getElementById('marketplace-screen').classList.remove('hidden');
+      document.getElementById('marketplace-resonance').textContent = resonance;
+      updateActiveBuffsUI();
+    }
+
+    function openARPortal() {
+      hideAllScreens();
+      document.getElementById('ar-portal-screen').classList.remove('hidden');
+      initThreeJSInAR();
+    }
+
+    function returnToCitadel() {
+      hideAllScreens();
+      document.getElementById('citadel-hub').classList.remove('hidden');
+      updateHubStats();
+    }
+
+    // ==================== SPRINT LOGIC ====================
+    function pickRandomBiome() {
+      const names = Object.keys(BIOMES);
+      currentBiome = names[Math.floor(Math.random() * names.length)];
+      updateBiomeDisplay();
+    }
+
+    function updateBiomeDisplay() {
+      const el = document.getElementById('biome-indicator');
+      if (!el) return;
+      const biome = BIOMES[currentBiome];
+      el.innerHTML = '';
+      const iconSpan = document.createElement('span');
+      iconSpan.style.color = biome.color;
+      iconSpan.textContent = biome.icon + ' ';
+      const nameSpan = document.createElement('span');
+      nameSpan.style.color = biome.color;
+      nameSpan.textContent = biome.name;
+      el.appendChild(iconSpan);
+      el.appendChild(nameSpan);
+    }
+
+    function getBiomeModifier(type) {
+      const b = BIOMES[currentBiome];
+      if (type === "energyCost") return b.energyCostMult;
+      if (type === "resonance") return b.resonanceMult;
+      return 1;
+    }
+
+    function getCurrentSprintType() {
+      if (resonance >= 200) return "Flow";
+      if (resonance >= 100) return "Power";
+      return "Burst";
+    }
+
+    function updateSprintTypeUI() {
+      const label = document.getElementById('sprint-type-label');
+      const btn = document.getElementById('sprint-btn');
+      if (!label || !btn) return;
+      const currentType = getCurrentSprintType();
+      label.textContent = currentType;
+
+      if (currentType === "Burst") { btn.style.backgroundColor = "#fbbf24"; btn.style.color = "black"; }
+      else if (currentType === "Power") { btn.style.backgroundColor = "#22d3ee"; btn.style.color = "black"; }
+      else { btn.style.backgroundColor = "#c084fc"; btn.style.color = "white"; }
+    }
+
+    function updateUI() {
+      document.getElementById('score').textContent = bolt.score;
+      document.getElementById('energy').textContent = bolt.energy;
+      document.getElementById('energy-bar').style.width = bolt.energy + '%';
+      document.getElementById('high-score').textContent = highScore;
+      document.getElementById('combo').textContent = combo;
+      document.getElementById('combo-multiplier').textContent = `x${getComboMultiplier()}`;
+      document.getElementById('speed').textContent = bolt.speed;
+      document.getElementById('howl').textContent = bolt.howl;
+      document.getElementById('resonance-text').textContent = resonance;
+      
+      const resPercent = Math.min(resonance / 3, 100);
+      document.getElementById('resonance-bar').style.width = resPercent + '%';
+      document.getElementById('echo-text').textContent = Math.floor(echo);
+      document.getElementById('echo-bar').style.width = echo + '%';
+    }
+
+    function getComboMultiplier() {
+      if (combo < 5) return 1;
+      if (combo < 10) return 1.5;
+      if (combo < 20) return 2;
+      return 2.5;
+    }
+
+    function increaseCombo() {
+      combo++;
+      updateUI();
+    }
+
+    function sprint() {
+      if (bolt.energy < 8) return;
+      let gain = Math.floor(15 * getComboMultiplier() * getBiomeModifier("resonance"));
+      bolt.score += gain;
+      bolt.energy = Math.max(0, bolt.energy - Math.floor(8 * getBiomeModifier("energyCost")));
+      bolt.speed = Math.min(10, bolt.speed + 2);
+      resonance += 5;
+      echo += 3;
+      increaseCombo();
+      updateUI();
+      updateSprintTypeUI();
+    }
+
+    function howl() {
+      bolt.energy = Math.min(100, bolt.energy + 15);
+      bolt.score += 10;
+      resonance += 4;
+      updateUI();
+      updateSprintTypeUI();
+    }
+
+    function catchComet() {
+      if (bolt.energy < 15) return;
+      bolt.score += 40;
+      bolt.energy -= 15;
+      resonance += 6;
+      echo += 8;
+      updateUI();
+      updateSprintTypeUI();
+    }
+
+    function updateHubStats() {
+      document.getElementById('hub-resonance').textContent = resonance;
+    }
+
+    // ==================== BOLTFORGE ====================
+    function forgeArtifact() {
+      if (resonance >= 25) {
+        resonance -= 25;
+        document.getElementById('forge-resonance').textContent = resonance;
+        alert("✅ Cosmic Artifact forged!");
+      } else {
+        alert("Not enough Resonance");
+      }
+    }
+
+    function forgeCompanion() {
+      if (resonance >= 40) {
+        resonance -= 40;
+        document.getElementById('forge-resonance').textContent = resonance;
+        alert("✅ New Companion created!");
+      } else {
+        alert("Not enough Resonance");
+      }
+    }
+
+    // ==================== INVENTORY ====================
+    function equipSlot(slotNumber) {
+      const textElement = document.getElementById(`slot-${slotNumber}-text`);
+      const buttonElement = document.getElementById(`slot-${slotNumber}-btn`);
+
+      if (equippedItems[slotNumber]) {
+        equippedItems[slotNumber] = null;
+        textElement.textContent = "Empty";
+        textElement.classList.remove("text-emerald-400");
+        textElement.classList.add("text-slate-400");
+        buttonElement.textContent = "Equip";
+        buttonElement.classList.remove("bg-red-600", "hover:bg-red-700");
+        buttonElement.classList.add("bg-purple-600", "hover:bg-purple-700");
+        return;
+      }
+
+      const itemName = prompt(`What would you like to equip in slot ${slotNumber}?`);
+      if (itemName && itemName.trim() !== "") {
+        equippedItems[slotNumber] = itemName.trim();
+        textElement.textContent = itemName.trim();
+        textElement.classList.remove("text-slate-400");
+        textElement.classList.add("text-emerald-400");
+        buttonElement.textContent = "Unequip";
+        buttonElement.classList.remove("bg-purple-600", "hover:bg-purple-700");
+        buttonElement.classList.add("bg-red-600", "hover:bg-red-700");
+      }
+    }
+
+    // ==================== MARKETPLACE ====================
+    function updateMarketplaceResonance() {
+      const el = document.getElementById('marketplace-resonance');
+      if (el) el.textContent = resonance;
+    }
+
+    function updateActiveBuffsUI() {
+      const section = document.getElementById('active-buffs-section');
+      const surgeDiv = document.getElementById('resonance-surge-timer');
+      const echoDiv = document.getElementById('echo-boost-timer');
+
+      let hasActive = false;
+
+      if (activeBuffs.resonanceSurge > 0) {
+        hasActive = true;
+        surgeDiv.classList.remove('hidden');
+        document.getElementById('resonance-surge-count').textContent = activeBuffs.resonanceSurge;
+      } else {
+        surgeDiv.classList.add('hidden');
+      }
+
+      if (activeBuffs.echoBoost > 0) {
+        hasActive = true;
+        echoDiv.classList.remove('hidden');
+        document.getElementById('echo-boost-count').textContent = activeBuffs.echoBoost;
+      } else {
+        echoDiv.classList.add('hidden');
+      }
+
+      if (hasActive) {
+        section.classList.remove('hidden');
+      } else {
+        section.classList.add('hidden');
+      }
+    }
+
+    function buyBuff(buffType, cost, duration) {
+      if (resonance >= cost) {
+        resonance -= cost;
+        updateMarketplaceResonance();
+        updateHubStats();
+
+        if (buffType === 'resonanceSurge') {
+          activeBuffs.resonanceSurge = duration;
+          alert(`✅ Resonance Surge activated for ${duration} sprints!`);
+        } else if (buffType === 'echoBoost') {
+          activeBuffs.echoBoost = duration;
+          alert(`✅ Echo Boost activated for ${duration} sprints!`);
+        }
+        updateActiveBuffsUI();
+      } else {
+        alert(`Not enough Resonance! (Need ${cost})`);
+      }
+    }
+
+    function buyEnergyRefill() {
+      if (resonance >= 25) {
+        resonance -= 25;
+        bolt.energy = 100;
+        updateMarketplaceResonance();
+        updateUI();
+        alert("✅ Energy fully refilled!");
+      } else {
+        alert("Not enough Resonance! (Need 25)");
+      }
+    }
+
+    function sellRandomArtifact() {
+      const earnings = Math.floor(Math.random() * 30) + 20;
+      resonance += earnings;
+      updateMarketplaceResonance();
+      updateHubStats();
+      alert(`✅ Sold artifact for ${earnings} Resonance!`);
+    }
+
+    // ==================== AR PORTAL (Three.js) ====================
+    function initThreeJSInAR() {
+      const container = document.getElementById('three-container');
+      if (container.children.length > 0) return; // Already initialized
+
+      threeScene = new THREE.Scene();
+      threeCamera = new THREE.PerspectiveCamera(55, container.clientWidth / container.clientHeight, 0.1, 1000);
+      threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      threeRenderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(threeRenderer.domElement);
+
+      threeScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      threeScene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.5));
+      const dir = new THREE.DirectionalLight(0xffffff, 1);
+      dir.position.set(8, 14, 7);
+      threeScene.add(dir);
+
+      createDetailedBoltInAR();
+      threeCamera.position.set(0, 1.4, 5.2);
+
+      // Controls
+      container.addEventListener('mousedown', startThreeDrag);
+      window.addEventListener('mouseup', endThreeDrag);
+      container.addEventListener('mousemove', threeDrag);
+      container.addEventListener('wheel', threeZoom, { passive: false });
+
+      container.addEventListener('touchstart', handleThreeTouchStart, { passive: false });
+      container.addEventListener('touchend', handleThreeTouchEnd);
+      container.addEventListener('touchmove', handleThreeTouchMove, { passive: false });
+
+      function startThreeDrag(e) { isDragging = true; previousX = e.clientX; previousY = e.clientY; }
+      function endThreeDrag() { isDragging = false; }
+
+      function threeDrag(e) {
+        if (!isDragging || !threeBoltGroup) return;
+        threeBoltGroup.rotation.y += (e.clientX - previousX) * 0.005;
+        threeBoltGroup.rotation.x += (e.clientY - previousY) * 0.005;
+        threeBoltGroup.rotation.x = Math.max(-1.3, Math.min(1.3, threeBoltGroup.rotation.x));
+        previousX = e.clientX;
+        previousY = e.clientY;
+      }
+
+      function threeZoom(e) {
+        e.preventDefault();
+        threeCamera.position.z += e.deltaY * 0.012;
+        threeCamera.position.z = Math.max(2, Math.min(threeCamera.position.z, 10));
+      }
+
+      function handleThreeTouchStart(e) {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          previousX = e.touches[0].clientX;
+          previousY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+          isDragging = false;
+          previousDistance = getThreeDistance(e.touches);
+        }
+      }
+
+      function handleThreeTouchEnd() { isDragging = false; }
+
+      function handleThreeTouchMove(e) {
+        e.preventDefault();
+        if (e.touches.length === 1 && isDragging && threeBoltGroup) {
+          const deltaX = e.touches[0].clientX - previousX;
+          const deltaY = e.touches[0].clientY - previousY;
+          threeBoltGroup.rotation.y += deltaX * 0.005;
+          threeBoltGroup.rotation.x += deltaY * 0.005;
+          threeBoltGroup.rotation.x = Math.max(-1.3, Math.min(1.3, threeBoltGroup.rotation.x));
+          previousX = e.touches[0].clientX;
+          previousY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+          const currentDistance = getThreeDistance(e.touches);
+          const delta = currentDistance - previousDistance;
+          threeCamera.position.z -= delta * 0.018;
+          threeCamera.position.z = Math.max(2, Math.min(threeCamera.position.z, 10));
+          previousDistance = currentDistance;
+        }
+      }
+
+      function getThreeDistance(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      function animateThree() {
+        requestAnimationFrame(animateThree);
+        if (threeBody) {
+          breathTime += 0.028;
+          const breath = Math.sin(breathTime) * 0.022;
+          threeBody.scale.set(1 + breath * 0.25, 1 + breath, 1 + breath * 0.35);
+        }
+        if (isWagging && threeTail) threeTail.rotation.z = Math.sin(Date.now() / 240) * 0.55;
+        threeRenderer.render(threeScene, threeCamera);
+      }
+      animateThree();
+    }
+
+    function createDetailedBoltInAR() {
+      threeBoltGroup = new THREE.Group();
+      threeScene.add(threeBoltGroup);
+
+      const whiteMat = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 22 });
+      const lightGrayMat = new THREE.MeshPhongMaterial({ color: 0xe2e8f0, shininess: 18 });
+      const darkMat = new THREE.MeshPhongMaterial({ color: 0x334155 });
+      const eyeWhiteMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+
+      threeBody = new THREE.Mesh(new THREE.SphereGeometry(1.25, 48, 48), whiteMat);
+      threeBody.scale.set(1.05, 0.92, 1.15);
+      threeBoltGroup.add(threeBody);
+
+      for (let i = 0; i < 8; i++) {
+        const tuft = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), lightGrayMat);
+        const angle = (i / 8) * Math.PI * 2;
+        tuft.position.set(Math.cos(angle) * 1.1, 0.3 + Math.sin(i) * 0.4, Math.sin(angle) * 0.9);
+        threeBoltGroup.add(tuft);
+      }
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(1.0, 48, 48), whiteMat);
+      head.position.set(0, 1.65, 0);
+      threeBoltGroup.add(head);
+
+      const snout = new THREE.Mesh(new THREE.SphereGeometry(0.48, 36, 36), lightGrayMat);
+      snout.position.set(0, 1.42, 0.95);
+      snout.scale.set(1, 0.85, 0.75);
+      threeBoltGroup.add(snout);
+
+      const nose = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 20), darkMat);
+      nose.position.set(0, 1.48, 1.28);
+      threeBoltGroup.add(nose);
+
+      const browGeo = new THREE.BoxGeometry(0.38, 0.08, 0.12);
+      const browMat = new THREE.MeshPhongMaterial({ color: 0x475569 });
+      const leftBrow = new THREE.Mesh(browGeo, browMat);
+      leftBrow.position.set(-0.42, 2.05, 0.72);
+      leftBrow.rotation.z = 0.25;
+      threeBoltGroup.add(leftBrow);
+      const rightBrow = leftBrow.clone();
+      rightBrow.position.x = 0.42;
+      rightBrow.rotation.z = -0.25;
+      threeBoltGroup.add(rightBrow);
+
+      const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.23, 24, 24), eyeWhiteMat);
+      leftEye.position.set(-0.42, 1.82, 0.72);
+      threeBoltGroup.add(leftEye);
+      const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.115, 20, 20), darkMat);
+      leftPupil.position.set(-0.42, 1.82, 0.88);
+      threeBoltGroup.add(leftPupil);
+
+      const rightEye = leftEye.clone();
+      rightEye.position.x = 0.42;
+      threeBoltGroup.add(rightEye);
+      const rightPupil = leftPupil.clone();
+      rightPupil.position.x = 0.42;
+      threeBoltGroup.add(rightPupil);
+
+      const earGeo = new THREE.ConeGeometry(0.4, 0.95, 4);
+      const leftEar = new THREE.Mesh(earGeo, lightGrayMat);
+      leftEar.position.set(-0.68, 2.45, 0);
+      leftEar.rotation.set(0, 0, -0.8);
+      threeBoltGroup.add(leftEar);
+      const rightEar = leftEar.clone();
+      rightEar.position.x = 0.68;
+      rightEar.rotation.z = 0.8;
+      threeBoltGroup.add(rightEar);
+
+      const legGeo = new THREE.CylinderGeometry(0.29, 0.26, 1.35, 8);
+      [[-0.68, -0.95, 0.58], [0.68, -0.95, 0.58], [-0.68, -0.95, -0.58], [0.68, -0.95, -0.58]].forEach(([x, y, z]) => {
+        const leg = new THREE.Mesh(legGeo, lightGrayMat);
+        leg.position.set(x, y, z);
+        threeBoltGroup.add(leg);
+      });
+
+      const tailGeo = new THREE.CylinderGeometry(0.24, 0.11, 2.5, 8);
+      threeTail = new THREE.Mesh(tailGeo, whiteMat);
+      threeTail.position.set(1.5, 0.9, 0);
+      threeTail.rotation.z = -1.4;
+      threeBoltGroup.add(threeTail);
+
+      const lightningMat = new THREE.LineBasicMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.9 });
+      const lightningGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-0.85, 0.65, 0.95),
+        new THREE.Vector3(0.65, 1.4, -0.35)
+      ]);
+      const lightning = new THREE.Line(lightningGeo, lightningMat);
+      threeBoltGroup.add(lightning);
+      lightningBolts.push(lightning);
+    }
+
+    function toggleTailWag() { isWagging = !isWagging; }
+
+    function addLightning() {
+      if (!threeBoltGroup) return;
+      const mat = new THREE.MeshBasicMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.85 });
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.4, 4), mat);
+      mesh.position.set((Math.random() - 0.5) * 2.4, (Math.random() - 0.5) * 2.2, (Math.random() - 0.5) * 1.6);
+      threeBoltGroup.add(mesh);
+      lightningBolts.push(mesh);
+      setTimeout(() => {
+        threeBoltGroup.remove(mesh);
+        lightningBolts = lightningBolts.filter(l => l !== mesh);
+      }, 850);
+    }
+
+    async function startRealAR() {
+      if (!navigator.xr) {
+        alert("WebXR not supported on this device/browser.");
+        return;
+      }
+      try {
+        xrSession = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] });
+        alert("AR started! Move your phone to detect surfaces.");
+      } catch (err) {
+        alert("Failed to start AR. Try Chrome on Android.");
+      }
+    }
+
+    function exitAR() {
+      if (xrSession) {
+        xrSession.end();
+        xrSession = null;
+      }
+    }
+
+    function init() {
+      pickRandomBiome();
+      updateUI();
+      updateSprintTypeUI();
+      updateHubStats();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
